@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect Four — Unicity</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#030a14;--bg2:#060f1e;--panel:#0a1828;--border:#0d2a4a;
+    --accent:#00c6ff;--gold:#f0c040;--red:#ff3c5f;--yellow:#ffe04b;--green:#00ff88;
+    --text:#c8dff5;--text-dim:#4a7090;
+    --glow:0 0 18px rgba(0,198,255,0.35);
+    --glow-red:0 0 18px rgba(255,60,95,0.5);
+    --glow-yellow:0 0 18px rgba(255,224,75,0.5);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);font-family:'Rajdhani',sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,198,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,198,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  /* NAV */
+  nav{width:100%;max-width:960px;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;position:relative;z-index:5}
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .logo-hex{width:30px;height:30px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:rgba(0,198,255,0.08);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center}
+  .logo-hex svg{width:13px}
+  .logo-text{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.12em;color:var(--accent)}
+  .nav-links{display:flex;gap:20px;list-style:none}
+  .nav-links a{font-size:12px;letter-spacing:.08em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s}
+  .nav-links a:hover,.nav-links a.cur{color:var(--accent)}
+
+  /* WALLET BAR */
+  .wallet-bar{width:100%;max-width:960px;display:flex;align-items:center;justify-content:flex-end;padding:0 24px 10px;position:relative;z-index:5;gap:10px}
+
+  /* Connect button (shown when not connected) */
+  .sphere-connect-btn{
+    display:flex;align-items:center;gap:9px;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    padding:9px 18px;border:1px solid var(--accent);background:rgba(0,198,255,0.04);color:var(--accent);
+    cursor:pointer;transition:all .2s;
+    clip-path:polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px);
+  }
+  .sphere-connect-btn:hover{background:rgba(0,198,255,.12);box-shadow:var(--glow)}
+  .sphere-connect-btn .sphere-icon{width:20px;height:20px;flex-shrink:0}
+
+  /* Connected strip (shown when wallet is connected) */
+  .wallet-strip{
+    display:none;align-items:center;gap:0;
+    background:var(--panel);border:1px solid var(--accent);box-shadow:var(--glow);
+    clip-path:polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px);
+  }
+  .wallet-strip.visible{display:flex}
+  .wallet-strip-inner{display:flex;align-items:center;gap:16px;padding:8px 16px}
+  .ws-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pdot 2s ease-in-out infinite;flex-shrink:0}
+  @keyframes pdot{0%,100%{opacity:.5}50%{opacity:1}}
+  .ws-addr{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--accent)}
+  .ws-sep{width:1px;height:20px;background:var(--border)}
+  .ws-bal-lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase}
+  .ws-bal-val{font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);font-weight:700}
+  .wallet-disc-btn{
+    padding:9px 14px;border-left:1px solid var(--border);border-right:0;border-top:0;border-bottom:0;
+    background:transparent;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:all .2s;
+  }
+  .wallet-disc-btn:hover{color:var(--red);background:rgba(255,60,95,.06)}
+
+  /* TICKER */
+  .ticker{width:100%;border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;background:var(--bg2);position:relative;z-index:5;margin-bottom:8px}
+  .ticker-inner{display:flex;animation:tick 22s linear infinite;white-space:nowrap}
+  .ti{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-dim);padding:6px 40px 6px 0;text-transform:uppercase}
+  .ti span{color:var(--accent)}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* SHARED COMPONENTS */
+  .btn{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:11px 20px;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);cursor:pointer;transition:all .2s;white-space:nowrap;clip-path:polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)}
+  .btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,198,255,.05)}
+  .btn.primary{border-color:var(--accent);color:var(--accent)}
+  .btn.primary:hover{background:rgba(0,198,255,.12);box-shadow:var(--glow)}
+  .btn.full{width:100%}
+  .row{display:flex;gap:8px}
+  .divider{display:flex;align-items:center;gap:12px}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+  .divider span{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.1em}
+  .err{font-family:'Space Mono',monospace;font-size:11px;color:var(--red);display:none}
+
+  /* LOBBY */
+  #lobbyScreen{display:flex;flex-direction:column;align-items:center;gap:20px;padding:30px 16px;width:100%;max-width:460px;position:relative;z-index:5}
+  .lobby-title{text-align:center}
+  .lobby-title h1{font-family:'Space Mono',monospace;font-size:clamp(20px,4vw,30px);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);text-shadow:var(--glow)}
+  .lobby-title p{font-size:13px;letter-spacing:.06em;color:var(--text-dim);margin-top:4px}
+  .card{width:100%;background:var(--panel);border:1px solid var(--border);padding:24px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));display:flex;flex-direction:column;gap:14px}
+  .card h2{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase}
+  .field{width:100%;background:#020810;border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;letter-spacing:.05em;padding:10px 14px;outline:none;transition:border-color .2s}
+  .field:focus{border-color:var(--accent)}
+  .code-field{flex:1;background:#020810;border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:20px;letter-spacing:.3em;text-align:center;padding:10px;text-transform:uppercase;outline:none;transition:border-color .2s}
+  .code-field:focus{border-color:var(--accent);box-shadow:var(--glow)}
+  .code-field::placeholder{font-size:11px;letter-spacing:.1em;color:var(--text-dim)}
+
+  /* WAITING */
+  #waitingScreen{display:none;flex-direction:column;align-items:center;gap:20px;padding:40px 16px;width:100%;max-width:460px;position:relative;z-index:5}
+  .code-box{text-align:center;background:var(--panel);border:1px solid var(--accent);padding:28px 40px;width:100%;box-shadow:var(--glow);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+  .code-box .lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px}
+  .code-box .code{font-family:'Space Mono',monospace;font-size:44px;letter-spacing:.3em;color:var(--accent);text-shadow:var(--glow)}
+  .code-box .hint{font-size:13px;color:var(--text-dim);margin-top:8px}
+  .dots{display:flex;gap:8px;align-items:center}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:blink 1.4s ease-in-out infinite}
+  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+  /* GAME */
+  #gameScreen{display:none;flex-direction:column;align-items:center;padding:8px 16px 40px;width:100%;position:relative;z-index:5}
+  .game-layout{display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap;width:100%;max-width:960px}
+  .player-strip{display:flex;gap:10px;width:100%;max-width:580px;margin-bottom:10px}
+  .pcard{flex:1;background:var(--panel);border:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));transition:border-color .3s,box-shadow .3s}
+  .pcard.tr{border-color:var(--red);box-shadow:inset 0 0 20px rgba(255,60,95,.06),var(--glow-red)}
+  .pcard.ty{border-color:var(--yellow);box-shadow:inset 0 0 20px rgba(255,224,75,.06),var(--glow-yellow)}
+  .you-tag{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent);background:rgba(0,198,255,.1);border:1px solid rgba(0,198,255,.3);padding:2px 6px;margin-left:auto}
+  .disc{width:26px;height:26px;border-radius:50%;flex-shrink:0}
+  .disc.r{background:radial-gradient(circle at 35% 35%,#ff8099,var(--red));box-shadow:var(--glow-red)}
+  .disc.y{background:radial-gradient(circle at 35% 35%,#fff099,var(--yellow));box-shadow:var(--glow-yellow)}
+  .pname{font-weight:700;font-size:15px}
+  .psub{font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.05em}
+
+  /* board */
+  .board-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+  .col-arrows{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 8px;margin-bottom:4px;width:100%}
+  .col-arr{height:18px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+  .board-frame{background:#040d1a;border:2px solid var(--border);padding:8px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 0 40px rgba(0,198,255,.02)}
+  .board-frame::before{content:'';position:absolute;top:-1px;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5}
+  .tgb{position:absolute;top:-2px;left:0;right:0;height:2px;transition:background .4s,box-shadow .4s;animation:gp 2s ease-in-out infinite}
+  @keyframes gp{0%,100%{opacity:.5}50%{opacity:1}}
+  .board-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cell{width:54px;height:54px;border-radius:50%;background:#020810;border:1px solid #0a1828;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden}
+  .cell.lk{cursor:default}
+  .cell.rd{background:radial-gradient(circle at 35% 30%,#ff8099,var(--red) 50%,#8b0020);border-color:#ff6b85;box-shadow:var(--glow-red);animation:drop .35s cubic-bezier(.25,.46,.45,.94)}
+  .cell.yd{background:radial-gradient(circle at 35% 30%,#fff099,var(--yellow) 50%,#8b6000);border-color:#fff07a;box-shadow:var(--glow-yellow);animation:drop .35s cubic-bezier(.25,.46,.45,.94)}
+  .cell.win{animation:wp .6s ease-in-out infinite alternate !important}
+  .cell.rd.win{box-shadow:0 0 30px rgba(255,60,95,.9)}.cell.yd.win{box-shadow:0 0 30px rgba(255,224,75,.9)}
+  @keyframes drop{from{transform:scaleY(.3) scaleX(1.2);opacity:.6}to{transform:scale(1);opacity:1}}
+  @keyframes wp{from{filter:brightness(1)}to{filter:brightness(1.6)}}
+
+  .status-row{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px}
+  .sbadge{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;padding:8px 14px;border:1px solid var(--border);background:var(--panel);text-transform:uppercase;flex:1;text-align:center}
+  .sbadge.tr{border-color:var(--red);color:var(--red)}.sbadge.ty{border-color:var(--yellow);color:var(--yellow)}.sbadge.tw{color:var(--gold);border-color:var(--gold)}.sbadge.td{color:var(--text-dim)}
+  .rmatch-btn{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;display:none;transition:all .2s}
+  .rmatch-btn:hover{background:rgba(0,198,255,.1);box-shadow:var(--glow)}.rmatch-btn.show{display:block}.rmatch-btn:disabled{opacity:.4;cursor:not-allowed}
+
+  .side-col{display:flex;flex-direction:column;gap:10px;width:190px}
+  .pb{background:var(--panel);border:1px solid var(--border);padding:12px 14px}
+  .pl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px}
+  .pv{font-size:24px;font-weight:700;color:var(--accent);text-shadow:var(--glow)}
+  .log-wrap{max-height:190px;overflow-y:auto}
+  .log-wrap::-webkit-scrollbar{width:3px}.log-wrap::-webkit-scrollbar-thumb{background:var(--border)}
+  .le{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);padding:2px 0;display:flex;gap:6px}
+  .ld{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .ld.r{background:var(--red)}.ld.y{background:var(--yellow)}
+
+  /* Wallet in sidebar */
+  .ws-side{background:var(--panel);border:1px solid var(--accent);padding:12px 14px;display:none;box-shadow:var(--glow)}
+  .ws-side.show{display:block}
+  .ws-side-addr{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);word-break:break-all;margin-top:4px}
+  .ws-side-bal{font-family:'Space Mono',monospace;font-size:18px;color:var(--gold);font-weight:700;margin-top:4px}
+  .ws-side-bal small{font-size:11px;color:var(--text-dim);font-weight:400}
+
+  @media(max-width:640px){.side-col{display:none}.cell{width:44px;height:44px}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://www.unicity.ai/" class="logo" target="_blank">
+    <div class="logo-hex">
+      <svg viewBox="0 0 16 16" fill="none"><polygon points="8,1 15,4.5 15,11.5 8,15 1,11.5 1,4.5" stroke="#00c6ff" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2.5" fill="#00c6ff"/></svg>
+    </div>
+    <span class="logo-text">UNICITY</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="https://unicitynetwork.github.io/Boxy-Run/" target="_blank">Boxy Run</a></li>
+    <li><a href="https://mastap.github.io/unicity-sphere-chess/" target="_blank">Sphere Chess</a></li>
+    <li><a href="#" class="cur">Connect Four</a></li>
+  </ul>
+</nav>
+
+<!-- WALLET BAR -->
+<div class="wallet-bar">
+
+  <!-- Disconnected button -->
+  <button class="sphere-connect-btn" id="sphereConnectBtn" onclick="connectWallet()">
+    <svg class="sphere-icon" viewBox="0 0 24 24" fill="none">
+      <polygon points="12,2 21,6.5 21,17.5 12,22 3,17.5 3,6.5" stroke="#00c6ff" stroke-width="1.5" fill="rgba(0,198,255,0.08)"/>
+      <circle cx="12" cy="12" r="3.5" stroke="#00c6ff" stroke-width="1.2" fill="none"/>
+      <circle cx="12" cy="12" r="1.5" fill="#00c6ff"/>
+    </svg>
+    Connect Sphere Wallet
+  </button>
+
+  <!-- Connected strip -->
+  <div class="wallet-strip" id="walletStrip">
+    <div class="wallet-strip-inner">
+      <div class="ws-dot"></div>
+      <div>
+        <div class="ws-bal-lbl">Wallet</div>
+        <div class="ws-addr" id="wsAddr">—</div>
+      </div>
+      <div class="ws-sep"></div>
+      <div>
+        <div class="ws-bal-lbl">Balance</div>
+        <div class="ws-bal-val" id="wsBal">— UCT</div>
+      </div>
+    </div>
+    <button class="wallet-disc-btn" onclick="disconnectWallet()">Disconnect</button>
+  </div>
+
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ti">CONNECT FOUR <span>MULTIPLAYER</span></span>
+    <span class="ti">SPHERE WALLET <span>INTEGRATED</span></span>
+    <span class="ti">UCT NETWORK <span>▲ 4.2%</span></span>
+    <span class="ti">INVITE A FRIEND <span>→ SHARE CODE</span></span>
+    <span class="ti">BOXY RUN <span>ONLINE</span></span>
+    <span class="ti">MACHINE SPEED GAMING <span>∞</span></span>
+    <span class="ti">CONNECT FOUR <span>MULTIPLAYER</span></span>
+    <span class="ti">SPHERE WALLET <span>INTEGRATED</span></span>
+    <span class="ti">UCT NETWORK <span>▲ 4.2%</span></span>
+    <span class="ti">INVITE A FRIEND <span>→ SHARE CODE</span></span>
+    <span class="ti">BOXY RUN <span>ONLINE</span></span>
+    <span class="ti">MACHINE SPEED GAMING <span>∞</span></span>
+  </div>
+</div>
+
+<!-- ═══ LOBBY ═══ -->
+<div id="lobbyScreen">
+  <div class="lobby-title">
+    <h1>Connect Four</h1>
+    <p>Invite a friend — real-time multiplayer</p>
+  </div>
+  <div class="card">
+    <h2>Your Name</h2>
+    <input class="field" id="nameInput" placeholder="Enter your name..." maxlength="20">
+  </div>
+  <div class="card">
+    <h2>Create a Room</h2>
+    <p style="font-size:13px;color:var(--text-dim);line-height:1.5">Start a new game and share the 6-letter code with your opponent.</p>
+    <button class="btn primary full" onclick="createRoom()">⊕ Create Room</button>
+  </div>
+  <div class="divider"><span>or join existing</span></div>
+  <div class="card">
+    <h2>Join a Room</h2>
+    <div class="row">
+      <input class="code-field" id="joinCode" placeholder="ENTER CODE" maxlength="6">
+      <button class="btn primary" onclick="joinRoom()">Join →</button>
+    </div>
+    <div class="err" id="joinErr"></div>
+  </div>
+</div>
+
+<!-- ═══ WAITING ═══ -->
+<div id="waitingScreen">
+  <div class="code-box">
+    <div class="lbl">Room Code — Share with your opponent</div>
+    <div class="code" id="displayCode">——————</div>
+    <div class="hint">Waiting for opponent to join...</div>
+  </div>
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <div class="row">
+    <button class="btn primary" onclick="copyCode()">⧉ Copy Code</button>
+    <button class="btn" onclick="cancelRoom()">✕ Cancel</button>
+  </div>
+  <div id="copyOk" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);display:none">Copied!</div>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div id="gameScreen">
+  <div style="width:100%;max-width:580px">
+    <div class="player-strip">
+      <div class="pcard" id="pc1">
+        <div class="disc r"></div>
+        <div><div class="pname" id="p1n">Player 1</div><div class="psub">RED</div></div>
+      </div>
+      <div class="pcard" id="pc2">
+        <div class="disc y"></div>
+        <div><div class="pname" id="p2n">Player 2</div><div class="psub">YELLOW</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-layout">
+    <!-- LEFT -->
+    <div class="side-col">
+      <div class="pb"><div class="pl">Move #</div><div class="pv" id="moveNum">0</div></div>
+      <div class="pb"><div class="pl">Room</div><div style="font-family:'Space Mono',monospace;font-size:15px;color:var(--text);letter-spacing:.15em" id="roomDisp">----</div></div>
+      <!-- Wallet sidebar panel (shown when connected) -->
+      <div class="ws-side" id="wsSide">
+        <div class="pl">Sphere Wallet</div>
+        <div class="ws-side-addr" id="wsSideAddr">—</div>
+        <div class="ws-side-bal" id="wsSideBal">— <small>UCT</small></div>
+      </div>
+      <div class="pb" style="flex:1"><div class="pl">Move Log</div><div class="log-wrap" id="moveLog"></div></div>
+    </div>
+
+    <!-- BOARD -->
+    <div class="board-wrap">
+      <div class="col-arrows" id="colArrows"></div>
+      <div class="board-frame">
+        <div class="tgb" id="tgb"></div>
+        <div class="board-grid" id="boardGrid"></div>
+      </div>
+      <div class="status-row">
+        <div class="sbadge" id="sbadge">—</div>
+        <button class="rmatch-btn" id="rmatchBtn" onclick="requestRematch()">↺ Rematch</button>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="side-col">
+      <div class="pb"><div class="pl">You are</div><div id="youAre" style="font-size:17px;font-weight:700"></div></div>
+      <div class="pb">
+        <div class="pl">Score</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="color:var(--red);font-size:22px;font-weight:700" id="w1">0</span>
+          <span style="color:var(--text-dim);font-size:12px">—</span>
+          <span style="color:var(--yellow);font-size:22px;font-weight:700" id="w2">0</span>
+        </div>
+      </div>
+      <div class="pb">
+        <div class="pl">Live</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+          <div class="ws-dot"></div>
+          <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase">Connected</span>
+        </div>
+      </div>
+      <button class="btn" onclick="leaveGame()">⟵ Leave</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  SPHERE WALLET BRIDGE
+//  Same bridge pattern used by Boxy Run & Sphere Chess:
+//  - Game → Sphere app: window.ReactNativeWebView.postMessage(jsonString)
+//  - Sphere app → Game: injectJavaScript dispatches a window 'message' event
+// ═══════════════════════════════════════════════════
+const sphereWallet = {
+  connected: false,
+  address: null,
+  balance: null,
+};
+
+function isInsideSphereApp() {
+  return typeof window.ReactNativeWebView !== 'undefined';
+}
+
+function connectWallet() {
+  if (!isInsideSphereApp()) {
+    // Show helpful note when not running inside Sphere
+    showBrowserWalletNote();
+    return;
+  }
+  // Ask the Sphere app to connect the wallet
+  window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CONNECT_WALLET' }));
+}
+
+function disconnectWallet() {
+  if (isInsideSphereApp()) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'DISCONNECT_WALLET' }));
+  }
+  sphereWallet.connected = false;
+  sphereWallet.address = null;
+  sphereWallet.balance = null;
+  updateWalletUI();
+}
+
+// Sphere app pushes wallet data back to the page via injectJavaScript,
+// which fires a standard 'message' event on window.
+window.addEventListener('message', function(evt) {
+  let msg;
+  try { msg = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data; } catch(e) { return; }
+  if (!msg || !msg.type) return;
+
+  switch (msg.type) {
+    // Sphere may use any of these keys — handle all variants
+    case 'WALLET_INFO':
+    case 'WALLET_CONNECTED':
+    case 'WALLET_DATA': {
+      sphereWallet.connected = true;
+      sphereWallet.address = msg.address || msg.wallet || msg.walletAddress || null;
+      sphereWallet.balance = msg.balance !== undefined ? msg.balance : msg.amount !== undefined ? msg.amount : null;
+      updateWalletUI();
+      break;
+    }
+    case 'WALLET_DISCONNECTED': {
+      sphereWallet.connected = false;
+      sphereWallet.address = null;
+      sphereWallet.balance = null;
+      updateWalletUI();
+      break;
+    }
+    case 'BALANCE_UPDATE':
+    case 'BALANCE': {
+      sphereWallet.balance = msg.balance !== undefined ? msg.balance : msg.amount;
+      updateWalletUI();
+      break;
+    }
+  }
+});
+
+function fmtAddr(addr) {
+  if (!addr) return '—';
+  const s = String(addr);
+  return s.length > 13 ? s.slice(0, 6) + '...' + s.slice(-4) : s;
+}
+
+function fmtBal(raw) {
+  if (raw === null || raw === undefined) return '—';
+  const n = Number(raw);
+  if (isNaN(n)) return String(raw) + ' UCT';
+  // If value looks like nano/micro units (very large int), divide down
+  const display = n > 1_000_000 ? (n / 1_000_000_000).toFixed(4) : n.toFixed(4);
+  return display + ' UCT';
+}
+
+function updateWalletUI() {
+  const connectBtn = document.getElementById('sphereConnectBtn');
+  const strip = document.getElementById('walletStrip');
+  const wsSide = document.getElementById('wsSide');
+
+  if (sphereWallet.connected) {
+    connectBtn.style.display = 'none';
+    strip.classList.add('visible');
+    document.getElementById('wsAddr').textContent = fmtAddr(sphereWallet.address);
+    document.getElementById('wsBal').textContent = fmtBal(sphereWallet.balance);
+    // Sidebar
+    if (wsSide) {
+      wsSide.classList.add('show');
+      document.getElementById('wsSideAddr').textContent = fmtAddr(sphereWallet.address);
+      const n = Number(sphereWallet.balance);
+      const bDisplay = (!isNaN(n) && n > 1_000_000) ? (n/1_000_000_000).toFixed(4) : (!isNaN(n) ? n.toFixed(4) : '—');
+      document.getElementById('wsSideBal').innerHTML = bDisplay + ' <small>UCT</small>';
+    }
+  } else {
+    connectBtn.style.display = 'flex';
+    strip.classList.remove('visible');
+    if (wsSide) wsSide.classList.remove('show');
+  }
+}
+
+// If inside Sphere app, auto-request wallet info on page load
+window.addEventListener('load', () => {
+  if (isInsideSphereApp()) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'GET_WALLET_INFO' }));
+  }
+});
+
+// Browser fallback: show an inline note instead of alert
+function showBrowserWalletNote() {
+  const btn = document.getElementById('sphereConnectBtn');
+  const note = document.createElement('div');
+  note.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a1828;border:1px solid #00c6ff;padding:28px 32px;z-index:1000;max-width:380px;text-align:center;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))';
+  note.innerHTML = `
+    <svg style="width:40px;margin-bottom:12px" viewBox="0 0 24 24" fill="none">
+      <polygon points="12,2 21,6.5 21,17.5 12,22 3,17.5 3,6.5" stroke="#00c6ff" stroke-width="1.5" fill="rgba(0,198,255,0.08)"/>
+      <circle cx="12" cy="12" r="3.5" stroke="#00c6ff" stroke-width="1.2" fill="none"/>
+      <circle cx="12" cy="12" r="1.5" fill="#00c6ff"/>
+    </svg>
+    <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;color:#00c6ff;text-transform:uppercase;margin-bottom:10px">Sphere Wallet</div>
+    <p style="font-size:14px;color:#c8dff5;line-height:1.6;margin-bottom:16px">Open this game inside the <strong>Unicity Sphere app</strong> to connect your wallet.</p>
+    <button onclick="this.parentNode.remove()" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:8px 20px;border:1px solid #4a7090;background:transparent;color:#4a7090;cursor:pointer">Close</button>
+  `;
+  document.body.appendChild(note);
+}
+
+
+// ═══════════════════════════════════════════════════
+//  MULTIPLAYER — shared storage relay
+// ═══════════════════════════════════════════════════
+const ROWS=6, COLS=7, POLL=1500;
+let myName='', myRole=null, myPlayer=null, roomCode='';
+let pollTimer=null, localState=null, wins={1:0,2:0};
+
+async function storeState(code,s){ try{await window.storage.set(`c4:${code}`,JSON.stringify(s),true)}catch(e){} }
+async function fetchState(code){ try{const r=await window.storage.get(`c4:${code}`,true);return r?JSON.parse(r.value):null}catch(e){return null} }
+async function deleteState(code){ try{await window.storage.delete(`c4:${code}`,true)}catch(e){} }
+
+function mkState(){
+  return{board:Array.from({length:ROWS},()=>Array(COLS).fill(0)),currentPlayer:1,gameOver:false,winner:null,winCells:[],moves:[],players:{1:'P1',2:'P2'},rematch:{1:false,2:false},version:0};
+}
+function genCode(){ return Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join(''); }
+
+async function createRoom(){
+  myName=document.getElementById('nameInput').value.trim()||'Player 1';
+  roomCode=genCode(); myRole='host'; myPlayer=1;
+  const s=mkState(); s.players[1]=myName; localState=s;
+  await storeState(roomCode,s);
+  document.getElementById('displayCode').textContent=roomCode;
+  show('waitingScreen');
+  pollTimer=setInterval(async()=>{
+    const s=await fetchState(roomCode);
+    if(s&&s.players[2]){localState=s;clearInterval(pollTimer);startGame();}
+  },POLL);
+}
+
+async function joinRoom(){
+  myName=document.getElementById('nameInput').value.trim()||'Player 2';
+  const code=document.getElementById('joinCode').value.trim().toUpperCase();
+  if(code.length!==6)return showJoinErr('Enter a 6-character room code');
+  const s=await fetchState(code);
+  if(!s)return showJoinErr('Room not found — check the code');
+  if(s.players[2])return showJoinErr('Room is full — game already started');
+  roomCode=code;myRole='guest';myPlayer=2;
+  s.players[2]=myName;localState=s;
+  await storeState(roomCode,s);
+  startGame();
+}
+function showJoinErr(m){const e=document.getElementById('joinErr');e.textContent=m;e.style.display='block';}
+function copyCode(){navigator.clipboard.writeText(roomCode).then(()=>{const e=document.getElementById('copyOk');e.style.display='block';setTimeout(()=>e.style.display='none',2000);})}
+function cancelRoom(){clearInterval(pollTimer);deleteState(roomCode);roomCode='';show('lobbyScreen');}
+
+function startGame(){
+  show('gameScreen');
+  document.getElementById('roomDisp').textContent=roomCode;
+  document.getElementById('youAre').innerHTML=myPlayer===1
+    ?'<span style="color:var(--red)">● RED</span>'
+    :'<span style="color:var(--yellow)">● YELLOW</span>';
+  buildArrows();renderAll();
+  clearInterval(pollTimer);
+  pollTimer=setInterval(poll,POLL);
+}
+
+async function poll(){
+  const s=await fetchState(roomCode);
+  if(!s||s.version===localState.version)return;
+  localState=s;renderAll();
+  if(s.rematch&&s.rematch[1]&&s.rematch[2])doRematch();
+}
+
+// ── render ──
+function buildArrows(){
+  const row=document.getElementById('colArrows');row.innerHTML='';
+  for(let c=0;c<COLS;c++){
+    const d=document.createElement('div');d.className='col-arr';d.id=`arr${c}`;
+    d.innerHTML=`<svg viewBox="0 0 14 14" fill="none"><polygon points="7,11 2,3 12,3" fill="${myPlayer===1?'#ff3c5f':'#ffe04b'}"/></svg>`;
+    row.appendChild(d);
+  }
+}
+
+function renderAll(){renderBoard();renderPlayers();renderStatus();renderLog();renderScore();}
+
+function renderBoard(){
+  const grid=document.getElementById('boardGrid');
+  const myTurn=!localState.gameOver&&localState.currentPlayer===myPlayer;
+  grid.innerHTML='';
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    const cell=document.createElement('div');cell.className='cell';
+    const v=localState.board[r][c];
+    if(v===1)cell.classList.add('rd');
+    if(v===2)cell.classList.add('yd');
+    if(localState.winCells&&localState.winCells.some(([wr,wc])=>wr===r&&wc===c))cell.classList.add('win');
+    if(!myTurn)cell.classList.add('lk');
+    else{
+      cell.addEventListener('click',()=>drop(c));
+      cell.addEventListener('mouseenter',()=>{const a=document.getElementById(`arr${c}`);if(a)a.style.opacity='1';});
+      cell.addEventListener('mouseleave',()=>{const a=document.getElementById(`arr${c}`);if(a)a.style.opacity='0';});
+    }
+    grid.appendChild(cell);
+  }
+  const tgb=document.getElementById('tgb');
+  if(localState.gameOver){tgb.style.background='#1a2a3a';tgb.style.boxShadow='none';tgb.style.animation='none';}
+  else{tgb.style.background=localState.currentPlayer===1?'var(--red)':'var(--yellow)';tgb.style.boxShadow=localState.currentPlayer===1?'var(--glow-red)':'var(--glow-yellow)';tgb.style.animation='gp 2s ease-in-out infinite';}
+}
+
+function renderPlayers(){
+  document.getElementById('p1n').textContent=localState.players[1]||'Player 1';
+  document.getElementById('p2n').textContent=localState.players[2]||'Waiting...';
+  const c1=document.getElementById('pc1'),c2=document.getElementById('pc2');
+  c1.className='pcard'+(localState.currentPlayer===1&&!localState.gameOver?' tr':'');
+  c2.className='pcard'+(localState.currentPlayer===2&&!localState.gameOver?' ty':'');
+  [c1,c2].forEach(c=>c.querySelectorAll('.you-tag').forEach(t=>t.remove()));
+  const myCard=myPlayer===1?c1:c2;
+  const tag=document.createElement('span');tag.className='you-tag';tag.textContent='YOU';myCard.appendChild(tag);
+}
+
+function renderStatus(){
+  const b=document.getElementById('sbadge'),rb=document.getElementById('rmatchBtn');
+  if(!localState.gameOver){
+    b.className='sbadge '+(localState.currentPlayer===1?'tr':'ty');
+    b.textContent=localState.currentPlayer===myPlayer?'Your Turn':`${localState.players[localState.currentPlayer]}'s Turn`;
+    rb.classList.remove('show');
+  } else {
+    if(localState.winner){b.className='sbadge tw';b.textContent=`${localState.players[localState.winner]} Wins! 🎉`;}
+    else{b.className='sbadge td';b.textContent='Draw — No Winner';}
+    rb.classList.add('show');
+    const mr=localState.rematch&&localState.rematch[myPlayer];
+    rb.textContent=mr?'⏳ Waiting...':'↺ Rematch';rb.disabled=!!mr;
+  }
+  document.getElementById('moveNum').textContent=localState.moves.length;
+}
+
+function renderLog(){
+  const log=document.getElementById('moveLog');log.innerHTML='';
+  localState.moves.forEach((m,i)=>{
+    const e=document.createElement('div');e.className='le';
+    e.innerHTML=`<span class="ld ${m.player===1?'r':'y'}"></span><span>#${String(i+1).padStart(2,'0')} ${localState.players[m.player]||`P${m.player}`} → Col ${m.col+1}</span>`;
+    log.appendChild(e);
+  });
+  log.scrollTop=log.scrollHeight;
+}
+function renderScore(){document.getElementById('w1').textContent=wins[1];document.getElementById('w2').textContent=wins[2];}
+
+// ── drop ──
+function getRow(board,col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===0)return r;return -1;}
+function checkWin(board,row,col){
+  const p=board[row][col],dirs=[[0,1],[1,0],[1,1],[1,-1]];
+  for(const[dr,dc]of dirs){
+    const cells=[[row,col]];
+    for(let d=1;d<4;d++){const r=row+dr*d,c=col+dc*d;if(r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==p)break;cells.push([r,c]);}
+    for(let d=1;d<4;d++){const r=row-dr*d,c=col-dc*d;if(r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==p)break;cells.push([r,c]);}
+    if(cells.length>=4)return cells.slice(0,4);
+  }
+  return null;
+}
+
+async function drop(col){
+  if(localState.gameOver||localState.currentPlayer!==myPlayer)return;
+  const row=getRow(localState.board,col);if(row===-1)return;
+  const s=JSON.parse(JSON.stringify(localState));
+  s.board[row][col]=myPlayer;s.moves.push({player:myPlayer,col,row});
+  const win=checkWin(s.board,row,col);
+  if(win){s.gameOver=true;s.winner=myPlayer;s.winCells=win;wins[myPlayer]++;}
+  else if(s.moves.length===ROWS*COLS){s.gameOver=true;s.winner=null;}
+  else{s.currentPlayer=myPlayer===1?2:1;}
+  s.version=(s.version||0)+1;s.rematch={1:false,2:false};
+  localState=s;renderAll();await storeState(roomCode,s);
+}
+
+async function requestRematch(){
+  const s=JSON.parse(JSON.stringify(localState));
+  s.rematch[myPlayer]=true;s.version=(s.version||0)+1;
+  localState=s;renderStatus();await storeState(roomCode,s);
+  if(s.rematch[1]&&s.rematch[2])doRematch();
+}
+async function doRematch(){
+  const f=mkState();f.players=localState.players;f.version=(localState.version||0)+1;
+  localState=f;renderAll();await storeState(roomCode,f);
+}
+
+function leaveGame(){
+  clearInterval(pollTimer);deleteState(roomCode);
+  roomCode='';localState=null;myRole=null;myPlayer=null;wins={1:0,2:0};
+  show('lobbyScreen');
+}
+
+function show(id){
+  ['lobbyScreen','waitingScreen','gameScreen'].forEach(s=>{
+    document.getElementById(s).style.display=s===id?'flex':'none';
+  });
+}
+
+show('lobbyScreen');
+</script>
+</body>
+</html>
