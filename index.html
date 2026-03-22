@@ -29,39 +29,35 @@
   .nav-links a:hover,.nav-links a.cur{color:var(--accent)}
 
   /* WALLET BAR */
-  .wallet-bar{width:100%;max-width:960px;display:flex;align-items:center;justify-content:flex-end;padding:0 24px 10px;position:relative;z-index:5;gap:10px}
+  .wallet-bar{width:100%;max-width:960px;display:flex;align-items:center;justify-content:flex-end;padding:0 24px 10px;position:relative;z-index:5}
 
-  /* Connect button (shown when not connected) */
-  .sphere-connect-btn{
+  /* Connect button */
+  #sphereConnectBtn{
     display:flex;align-items:center;gap:9px;
     font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
     padding:9px 18px;border:1px solid var(--accent);background:rgba(0,198,255,0.04);color:var(--accent);
     cursor:pointer;transition:all .2s;
     clip-path:polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px);
   }
-  .sphere-connect-btn:hover{background:rgba(0,198,255,.12);box-shadow:var(--glow)}
-  .sphere-connect-btn .sphere-icon{width:20px;height:20px;flex-shrink:0}
+  #sphereConnectBtn:hover{background:rgba(0,198,255,.12);box-shadow:var(--glow)}
+  #sphereConnectBtn svg{width:20px;height:20px;flex-shrink:0}
 
-  /* Connected strip (shown when wallet is connected) */
-  .wallet-strip{
-    display:none;align-items:center;gap:0;
+  /* Connected strip */
+  #walletStrip{
+    display:none;align-items:center;
     background:var(--panel);border:1px solid var(--accent);box-shadow:var(--glow);
     clip-path:polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px);
   }
-  .wallet-strip.visible{display:flex}
-  .wallet-strip-inner{display:flex;align-items:center;gap:16px;padding:8px 16px}
+  #walletStrip.show{display:flex}
+  .ws-inner{display:flex;align-items:center;gap:16px;padding:8px 16px}
   .ws-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pdot 2s ease-in-out infinite;flex-shrink:0}
   @keyframes pdot{0%,100%{opacity:.5}50%{opacity:1}}
+  .ws-lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase}
   .ws-addr{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--accent)}
   .ws-sep{width:1px;height:20px;background:var(--border)}
-  .ws-bal-lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase}
-  .ws-bal-val{font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);font-weight:700}
-  .wallet-disc-btn{
-    padding:9px 14px;border-left:1px solid var(--border);border-right:0;border-top:0;border-bottom:0;
-    background:transparent;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:all .2s;
-  }
-  .wallet-disc-btn:hover{color:var(--red);background:rgba(255,60,95,.06)}
+  .ws-bal{font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);font-weight:700}
+  .ws-disc{padding:9px 14px;border-left:1px solid var(--border);border-right:0;border-top:0;border-bottom:0;background:transparent;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:all .2s}
+  .ws-disc:hover{color:var(--red);background:rgba(255,60,95,.06)}
 
   /* TICKER */
   .ticker{width:100%;border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;background:var(--bg2);position:relative;z-index:5;margin-bottom:8px}
@@ -70,7 +66,7 @@
   .ti span{color:var(--accent)}
   @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-  /* SHARED COMPONENTS */
+  /* SHARED */
   .btn{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:11px 20px;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);cursor:pointer;transition:all .2s;white-space:nowrap;clip-path:polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)}
   .btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,198,255,.05)}
   .btn.primary{border-color:var(--accent);color:var(--accent)}
@@ -80,7 +76,7 @@
   .divider{display:flex;align-items:center;gap:12px}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
   .divider span{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:.1em}
-  .err{font-family:'Space Mono',monospace;font-size:11px;color:var(--red);display:none}
+  .err{font-family:'Space Mono',monospace;font-size:11px;color:var(--red);display:none;margin-top:4px}
 
   /* LOBBY */
   #lobbyScreen{display:flex;flex-direction:column;align-items:center;gap:20px;padding:30px 16px;width:100%;max-width:460px;position:relative;z-index:5}
@@ -154,7 +150,6 @@
   .ld{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
   .ld.r{background:var(--red)}.ld.y{background:var(--yellow)}
 
-  /* Wallet in sidebar */
   .ws-side{background:var(--panel);border:1px solid var(--accent);padding:12px 14px;display:none;box-shadow:var(--glow)}
   .ws-side.show{display:block}
   .ws-side-addr{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);word-break:break-all;margin-top:4px}
@@ -166,7 +161,6 @@
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <a href="https://www.unicity.ai/" class="logo" target="_blank">
     <div class="logo-hex">
@@ -183,10 +177,8 @@
 
 <!-- WALLET BAR -->
 <div class="wallet-bar">
-
-  <!-- Disconnected button -->
-  <button class="sphere-connect-btn" id="sphereConnectBtn" onclick="connectWallet()">
-    <svg class="sphere-icon" viewBox="0 0 24 24" fill="none">
+  <button id="sphereConnectBtn" onclick="connectWallet()">
+    <svg viewBox="0 0 24 24" fill="none">
       <polygon points="12,2 21,6.5 21,17.5 12,22 3,17.5 3,6.5" stroke="#00c6ff" stroke-width="1.5" fill="rgba(0,198,255,0.08)"/>
       <circle cx="12" cy="12" r="3.5" stroke="#00c6ff" stroke-width="1.2" fill="none"/>
       <circle cx="12" cy="12" r="1.5" fill="#00c6ff"/>
@@ -194,26 +186,17 @@
     Connect Sphere Wallet
   </button>
 
-  <!-- Connected strip -->
-  <div class="wallet-strip" id="walletStrip">
-    <div class="wallet-strip-inner">
+  <div id="walletStrip">
+    <div class="ws-inner">
       <div class="ws-dot"></div>
-      <div>
-        <div class="ws-bal-lbl">Wallet</div>
-        <div class="ws-addr" id="wsAddr">—</div>
-      </div>
+      <div><div class="ws-lbl">Wallet</div><div class="ws-addr" id="wsAddr">—</div></div>
       <div class="ws-sep"></div>
-      <div>
-        <div class="ws-bal-lbl">Balance</div>
-        <div class="ws-bal-val" id="wsBal">— UCT</div>
-      </div>
+      <div><div class="ws-lbl">Balance</div><div class="ws-bal" id="wsBal">—</div></div>
     </div>
-    <button class="wallet-disc-btn" onclick="disconnectWallet()">Disconnect</button>
+    <button class="ws-disc" onclick="disconnectWallet()">Disconnect</button>
   </div>
-
 </div>
 
-<!-- TICKER -->
 <div class="ticker">
   <div class="ticker-inner">
     <span class="ti">CONNECT FOUR <span>MULTIPLAYER</span></span>
@@ -221,17 +204,17 @@
     <span class="ti">UCT NETWORK <span>▲ 4.2%</span></span>
     <span class="ti">INVITE A FRIEND <span>→ SHARE CODE</span></span>
     <span class="ti">BOXY RUN <span>ONLINE</span></span>
-    <span class="ti">MACHINE SPEED GAMING <span>∞</span></span>
+    <span class="ti">MACHINE SPEED <span>∞</span></span>
     <span class="ti">CONNECT FOUR <span>MULTIPLAYER</span></span>
     <span class="ti">SPHERE WALLET <span>INTEGRATED</span></span>
     <span class="ti">UCT NETWORK <span>▲ 4.2%</span></span>
     <span class="ti">INVITE A FRIEND <span>→ SHARE CODE</span></span>
     <span class="ti">BOXY RUN <span>ONLINE</span></span>
-    <span class="ti">MACHINE SPEED GAMING <span>∞</span></span>
+    <span class="ti">MACHINE SPEED <span>∞</span></span>
   </div>
 </div>
 
-<!-- ═══ LOBBY ═══ -->
+<!-- LOBBY -->
 <div id="lobbyScreen">
   <div class="lobby-title">
     <h1>Connect Four</h1>
@@ -257,7 +240,7 @@
   </div>
 </div>
 
-<!-- ═══ WAITING ═══ -->
+<!-- WAITING -->
 <div id="waitingScreen">
   <div class="code-box">
     <div class="lbl">Room Code — Share with your opponent</div>
@@ -272,7 +255,7 @@
   <div id="copyOk" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);display:none">Copied!</div>
 </div>
 
-<!-- ═══ GAME ═══ -->
+<!-- GAME -->
 <div id="gameScreen">
   <div style="width:100%;max-width:580px">
     <div class="player-strip">
@@ -286,13 +269,10 @@
       </div>
     </div>
   </div>
-
   <div class="game-layout">
-    <!-- LEFT -->
     <div class="side-col">
       <div class="pb"><div class="pl">Move #</div><div class="pv" id="moveNum">0</div></div>
       <div class="pb"><div class="pl">Room</div><div style="font-family:'Space Mono',monospace;font-size:15px;color:var(--text);letter-spacing:.15em" id="roomDisp">----</div></div>
-      <!-- Wallet sidebar panel (shown when connected) -->
       <div class="ws-side" id="wsSide">
         <div class="pl">Sphere Wallet</div>
         <div class="ws-side-addr" id="wsSideAddr">—</div>
@@ -300,8 +280,6 @@
       </div>
       <div class="pb" style="flex:1"><div class="pl">Move Log</div><div class="log-wrap" id="moveLog"></div></div>
     </div>
-
-    <!-- BOARD -->
     <div class="board-wrap">
       <div class="col-arrows" id="colArrows"></div>
       <div class="board-frame">
@@ -313,8 +291,6 @@
         <button class="rmatch-btn" id="rmatchBtn" onclick="requestRematch()">↺ Rematch</button>
       </div>
     </div>
-
-    <!-- RIGHT -->
     <div class="side-col">
       <div class="pb"><div class="pl">You are</div><div id="youAre" style="font-size:17px;font-weight:700"></div></div>
       <div class="pb">
@@ -338,193 +314,173 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-//  SPHERE WALLET BRIDGE
-//  Same bridge pattern used by Boxy Run & Sphere Chess:
-//  - Game → Sphere app: window.ReactNativeWebView.postMessage(jsonString)
-//  - Sphere app → Game: injectJavaScript dispatches a window 'message' event
-// ═══════════════════════════════════════════════════
-const sphereWallet = {
-  connected: false,
-  address: null,
-  balance: null,
-};
+// ═══════════════════════════════════════════════════════════════
+//  SPHERE WALLET — Chrome Extension Bridge
+//
+//  Sphere is a browser extension (like MetaMask).
+//  When clicked it opens sphere.unicity.network/connect?origin=...
+//  as a popup. The extension injects window.sphere into the page.
+//  We listen for the wallet to post back via window.addEventListener.
+// ═══════════════════════════════════════════════════════════════
 
-function isInsideSphereApp() {
-  return typeof window.ReactNativeWebView !== 'undefined';
-}
+const SPHERE_ORIGIN = 'https://sphere.unicity.network';
+
+let wallet = { connected: false, address: null, balance: null };
+let spherePopup = null;
 
 function connectWallet() {
-  if (!isInsideSphereApp()) {
-    // Show helpful note when not running inside Sphere
-    showBrowserWalletNote();
-    return;
+  // Open Sphere connect popup — exactly how Boxy Run does it
+  const origin = encodeURIComponent(window.location.origin || window.location.href);
+  const popupUrl = `${SPHERE_ORIGIN}/connect?origin=${origin}`;
+
+  spherePopup = window.open(
+    popupUrl,
+    'SphereWallet',
+    'width=400,height=600,top=100,left=100,resizable=no,scrollbars=no'
+  );
+
+  // If popup was blocked, show instruction
+  if (!spherePopup || spherePopup.closed) {
+    alert('Please allow popups for this site, then click "Connect Sphere Wallet" again.\n\nIn Chrome: click the popup blocked icon in the address bar → Allow popups from this site.');
   }
-  // Ask the Sphere app to connect the wallet
-  window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CONNECT_WALLET' }));
 }
 
 function disconnectWallet() {
-  if (isInsideSphereApp()) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'DISCONNECT_WALLET' }));
+  // Notify Sphere extension if it's listening
+  if (window.sphere && typeof window.sphere.disconnect === 'function') {
+    window.sphere.disconnect();
   }
-  sphereWallet.connected = false;
-  sphereWallet.address = null;
-  sphereWallet.balance = null;
+  wallet = { connected: false, address: null, balance: null };
   updateWalletUI();
 }
 
-// Sphere app pushes wallet data back to the page via injectJavaScript,
-// which fires a standard 'message' event on window.
+// ── Listen for messages from the Sphere popup / extension ──
 window.addEventListener('message', function(evt) {
+  // Only trust messages from the Sphere origin
+  if (evt.origin !== SPHERE_ORIGIN && !evt.origin.includes('sphere.unicity')) return;
+
   let msg;
   try { msg = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data; } catch(e) { return; }
   if (!msg || !msg.type) return;
 
   switch (msg.type) {
-    // Sphere may use any of these keys — handle all variants
-    case 'WALLET_INFO':
     case 'WALLET_CONNECTED':
-    case 'WALLET_DATA': {
-      sphereWallet.connected = true;
-      sphereWallet.address = msg.address || msg.wallet || msg.walletAddress || null;
-      sphereWallet.balance = msg.balance !== undefined ? msg.balance : msg.amount !== undefined ? msg.amount : null;
+    case 'WALLET_INFO':
+    case 'CONNECT_SUCCESS': {
+      wallet.connected = true;
+      wallet.address = msg.address || msg.wallet || msg.account || null;
+      wallet.balance = msg.balance !== undefined ? msg.balance : null;
+      if (spherePopup && !spherePopup.closed) spherePopup.close();
       updateWalletUI();
       break;
     }
     case 'WALLET_DISCONNECTED': {
-      sphereWallet.connected = false;
-      sphereWallet.address = null;
-      sphereWallet.balance = null;
+      wallet = { connected: false, address: null, balance: null };
       updateWalletUI();
       break;
     }
-    case 'BALANCE_UPDATE':
-    case 'BALANCE': {
-      sphereWallet.balance = msg.balance !== undefined ? msg.balance : msg.amount;
+    case 'BALANCE_UPDATE': {
+      wallet.balance = msg.balance !== undefined ? msg.balance : msg.amount;
       updateWalletUI();
       break;
     }
   }
 });
 
-function fmtAddr(addr) {
-  if (!addr) return '—';
-  const s = String(addr);
-  return s.length > 13 ? s.slice(0, 6) + '...' + s.slice(-4) : s;
-}
+// ── Also support window.sphere injected by the extension directly ──
+window.addEventListener('load', () => {
+  if (window.sphere) {
+    // Extension injected wallet object directly
+    window.sphere.getAccount && window.sphere.getAccount().then(acct => {
+      if (acct) {
+        wallet.connected = true;
+        wallet.address = acct.address || acct;
+        wallet.balance = acct.balance || null;
+        updateWalletUI();
+      }
+    }).catch(() => {});
+  }
+});
 
-function fmtBal(raw) {
-  if (raw === null || raw === undefined) return '—';
-  const n = Number(raw);
-  if (isNaN(n)) return String(raw) + ' UCT';
-  // If value looks like nano/micro units (very large int), divide down
-  const display = n > 1_000_000 ? (n / 1_000_000_000).toFixed(4) : n.toFixed(4);
-  return display + ' UCT';
+function fmtAddr(a) {
+  if (!a) return '—';
+  const s = String(a);
+  return s.length > 13 ? s.slice(0,6) + '...' + s.slice(-4) : s;
+}
+function fmtBal(b) {
+  if (b === null || b === undefined) return '—';
+  const n = Number(b);
+  if (isNaN(n)) return String(b);
+  return (n > 1_000_000 ? (n/1_000_000_000).toFixed(4) : n.toFixed(4)) + ' UCT';
 }
 
 function updateWalletUI() {
-  const connectBtn = document.getElementById('sphereConnectBtn');
+  const btn = document.getElementById('sphereConnectBtn');
   const strip = document.getElementById('walletStrip');
-  const wsSide = document.getElementById('wsSide');
+  const side = document.getElementById('wsSide');
 
-  if (sphereWallet.connected) {
-    connectBtn.style.display = 'none';
-    strip.classList.add('visible');
-    document.getElementById('wsAddr').textContent = fmtAddr(sphereWallet.address);
-    document.getElementById('wsBal').textContent = fmtBal(sphereWallet.balance);
-    // Sidebar
-    if (wsSide) {
-      wsSide.classList.add('show');
-      document.getElementById('wsSideAddr').textContent = fmtAddr(sphereWallet.address);
-      const n = Number(sphereWallet.balance);
-      const bDisplay = (!isNaN(n) && n > 1_000_000) ? (n/1_000_000_000).toFixed(4) : (!isNaN(n) ? n.toFixed(4) : '—');
-      document.getElementById('wsSideBal').innerHTML = bDisplay + ' <small>UCT</small>';
+  if (wallet.connected) {
+    btn.style.display = 'none';
+    strip.classList.add('show');
+    document.getElementById('wsAddr').textContent = fmtAddr(wallet.address);
+    document.getElementById('wsBal').textContent = fmtBal(wallet.balance);
+    if (side) {
+      side.classList.add('show');
+      document.getElementById('wsSideAddr').textContent = fmtAddr(wallet.address);
+      const n = Number(wallet.balance);
+      document.getElementById('wsSideBal').innerHTML = (isNaN(n)?'—': n > 1_000_000 ? (n/1_000_000_000).toFixed(4) : n.toFixed(4)) + ' <small>UCT</small>';
     }
   } else {
-    connectBtn.style.display = 'flex';
-    strip.classList.remove('visible');
-    if (wsSide) wsSide.classList.remove('show');
+    btn.style.display = 'flex';
+    strip.classList.remove('show');
+    if (side) side.classList.remove('show');
   }
-}
-
-// If inside Sphere app, auto-request wallet info on page load
-window.addEventListener('load', () => {
-  if (isInsideSphereApp()) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'GET_WALLET_INFO' }));
-  }
-});
-
-// Browser fallback: show an inline note instead of alert
-function showBrowserWalletNote() {
-  const btn = document.getElementById('sphereConnectBtn');
-  const note = document.createElement('div');
-  note.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a1828;border:1px solid #00c6ff;padding:28px 32px;z-index:1000;max-width:380px;text-align:center;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))';
-  note.innerHTML = `
-    <svg style="width:40px;margin-bottom:12px" viewBox="0 0 24 24" fill="none">
-      <polygon points="12,2 21,6.5 21,17.5 12,22 3,17.5 3,6.5" stroke="#00c6ff" stroke-width="1.5" fill="rgba(0,198,255,0.08)"/>
-      <circle cx="12" cy="12" r="3.5" stroke="#00c6ff" stroke-width="1.2" fill="none"/>
-      <circle cx="12" cy="12" r="1.5" fill="#00c6ff"/>
-    </svg>
-    <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;color:#00c6ff;text-transform:uppercase;margin-bottom:10px">Sphere Wallet</div>
-    <p style="font-size:14px;color:#c8dff5;line-height:1.6;margin-bottom:16px">Open this game inside the <strong>Unicity Sphere app</strong> to connect your wallet.</p>
-    <button onclick="this.parentNode.remove()" style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:8px 20px;border:1px solid #4a7090;background:transparent;color:#4a7090;cursor:pointer">Close</button>
-  `;
-  document.body.appendChild(note);
 }
 
 
 // ═══════════════════════════════════════════════════
 //  MULTIPLAYER — shared storage relay
 // ═══════════════════════════════════════════════════
-const ROWS=6, COLS=7, POLL=1500;
-let myName='', myRole=null, myPlayer=null, roomCode='';
-let pollTimer=null, localState=null, wins={1:0,2:0};
+const ROWS=6,COLS=7,POLL=1500;
+let myName='',myRole=null,myPlayer=null,roomCode='';
+let pollTimer=null,localState=null,wins={1:0,2:0};
 
-async function storeState(code,s){ try{await window.storage.set(`c4:${code}`,JSON.stringify(s),true)}catch(e){} }
-async function fetchState(code){ try{const r=await window.storage.get(`c4:${code}`,true);return r?JSON.parse(r.value):null}catch(e){return null} }
-async function deleteState(code){ try{await window.storage.delete(`c4:${code}`,true)}catch(e){} }
+async function storeState(code,s){try{await window.storage.set(`c4:${code}`,JSON.stringify(s),true)}catch(e){}}
+async function fetchState(code){try{const r=await window.storage.get(`c4:${code}`,true);return r?JSON.parse(r.value):null}catch(e){return null}}
+async function deleteState(code){try{await window.storage.delete(`c4:${code}`,true)}catch(e){}}
 
-function mkState(){
-  return{board:Array.from({length:ROWS},()=>Array(COLS).fill(0)),currentPlayer:1,gameOver:false,winner:null,winCells:[],moves:[],players:{1:'P1',2:'P2'},rematch:{1:false,2:false},version:0};
-}
-function genCode(){ return Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join(''); }
+function mkState(){return{board:Array.from({length:ROWS},()=>Array(COLS).fill(0)),currentPlayer:1,gameOver:false,winner:null,winCells:[],moves:[],players:{1:'P1',2:'P2'},rematch:{1:false,2:false},version:0}}
+function genCode(){return Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('')}
 
 async function createRoom(){
   myName=document.getElementById('nameInput').value.trim()||'Player 1';
-  roomCode=genCode(); myRole='host'; myPlayer=1;
-  const s=mkState(); s.players[1]=myName; localState=s;
+  roomCode=genCode();myRole='host';myPlayer=1;
+  const s=mkState();s.players[1]=myName;localState=s;
   await storeState(roomCode,s);
   document.getElementById('displayCode').textContent=roomCode;
   show('waitingScreen');
-  pollTimer=setInterval(async()=>{
-    const s=await fetchState(roomCode);
-    if(s&&s.players[2]){localState=s;clearInterval(pollTimer);startGame();}
-  },POLL);
+  pollTimer=setInterval(async()=>{const s=await fetchState(roomCode);if(s&&s.players[2]){localState=s;clearInterval(pollTimer);startGame();}},POLL);
 }
 
 async function joinRoom(){
   myName=document.getElementById('nameInput').value.trim()||'Player 2';
   const code=document.getElementById('joinCode').value.trim().toUpperCase();
-  if(code.length!==6)return showJoinErr('Enter a 6-character room code');
+  if(code.length!==6)return showErr('Enter a 6-character room code');
   const s=await fetchState(code);
-  if(!s)return showJoinErr('Room not found — check the code');
-  if(s.players[2])return showJoinErr('Room is full — game already started');
+  if(!s)return showErr('Room not found — check the code');
+  if(s.players[2])return showErr('Room is full — game already started');
   roomCode=code;myRole='guest';myPlayer=2;
   s.players[2]=myName;localState=s;
-  await storeState(roomCode,s);
-  startGame();
+  await storeState(roomCode,s);startGame();
 }
-function showJoinErr(m){const e=document.getElementById('joinErr');e.textContent=m;e.style.display='block';}
-function copyCode(){navigator.clipboard.writeText(roomCode).then(()=>{const e=document.getElementById('copyOk');e.style.display='block';setTimeout(()=>e.style.display='none',2000);})}
-function cancelRoom(){clearInterval(pollTimer);deleteState(roomCode);roomCode='';show('lobbyScreen');}
+function showErr(m){const e=document.getElementById('joinErr');e.textContent=m;e.style.display='block'}
+function copyCode(){navigator.clipboard.writeText(roomCode).then(()=>{const e=document.getElementById('copyOk');e.style.display='block';setTimeout(()=>e.style.display='none',2000)})}
+function cancelRoom(){clearInterval(pollTimer);deleteState(roomCode);roomCode='';show('lobbyScreen')}
 
 function startGame(){
   show('gameScreen');
   document.getElementById('roomDisp').textContent=roomCode;
-  document.getElementById('youAre').innerHTML=myPlayer===1
-    ?'<span style="color:var(--red)">● RED</span>'
-    :'<span style="color:var(--yellow)">● YELLOW</span>';
+  document.getElementById('youAre').innerHTML=myPlayer===1?'<span style="color:var(--red)">● RED</span>':'<span style="color:var(--yellow)">● YELLOW</span>';
   buildArrows();renderAll();
   clearInterval(pollTimer);
   pollTimer=setInterval(poll,POLL);
@@ -537,17 +493,12 @@ async function poll(){
   if(s.rematch&&s.rematch[1]&&s.rematch[2])doRematch();
 }
 
-// ── render ──
 function buildArrows(){
   const row=document.getElementById('colArrows');row.innerHTML='';
-  for(let c=0;c<COLS;c++){
-    const d=document.createElement('div');d.className='col-arr';d.id=`arr${c}`;
-    d.innerHTML=`<svg viewBox="0 0 14 14" fill="none"><polygon points="7,11 2,3 12,3" fill="${myPlayer===1?'#ff3c5f':'#ffe04b'}"/></svg>`;
-    row.appendChild(d);
-  }
+  for(let c=0;c<COLS;c++){const d=document.createElement('div');d.className='col-arr';d.id=`arr${c}`;d.innerHTML=`<svg viewBox="0 0 14 14" fill="none"><polygon points="7,11 2,3 12,3" fill="${myPlayer===1?'#ff3c5f':'#ffe04b'}"/></svg>`;row.appendChild(d)}
 }
 
-function renderAll(){renderBoard();renderPlayers();renderStatus();renderLog();renderScore();}
+function renderAll(){renderBoard();renderPlayers();renderStatus();renderLog();renderScore()}
 
 function renderBoard(){
   const grid=document.getElementById('boardGrid');
@@ -556,20 +507,19 @@ function renderBoard(){
   for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
     const cell=document.createElement('div');cell.className='cell';
     const v=localState.board[r][c];
-    if(v===1)cell.classList.add('rd');
-    if(v===2)cell.classList.add('yd');
+    if(v===1)cell.classList.add('rd');if(v===2)cell.classList.add('yd');
     if(localState.winCells&&localState.winCells.some(([wr,wc])=>wr===r&&wc===c))cell.classList.add('win');
     if(!myTurn)cell.classList.add('lk');
     else{
       cell.addEventListener('click',()=>drop(c));
-      cell.addEventListener('mouseenter',()=>{const a=document.getElementById(`arr${c}`);if(a)a.style.opacity='1';});
-      cell.addEventListener('mouseleave',()=>{const a=document.getElementById(`arr${c}`);if(a)a.style.opacity='0';});
+      cell.addEventListener('mouseenter',()=>{const a=document.getElementById(`arr${c}`);if(a)a.style.opacity='1'});
+      cell.addEventListener('mouseleave',()=>{const a=document.getElementById(`arr${c}`);if(a)a.style.opacity='0'});
     }
     grid.appendChild(cell);
   }
   const tgb=document.getElementById('tgb');
-  if(localState.gameOver){tgb.style.background='#1a2a3a';tgb.style.boxShadow='none';tgb.style.animation='none';}
-  else{tgb.style.background=localState.currentPlayer===1?'var(--red)':'var(--yellow)';tgb.style.boxShadow=localState.currentPlayer===1?'var(--glow-red)':'var(--glow-yellow)';tgb.style.animation='gp 2s ease-in-out infinite';}
+  if(localState.gameOver){tgb.style.background='#1a2a3a';tgb.style.boxShadow='none';tgb.style.animation='none'}
+  else{tgb.style.background=localState.currentPlayer===1?'var(--red)':'var(--yellow)';tgb.style.boxShadow=localState.currentPlayer===1?'var(--glow-red)':'var(--glow-yellow)';tgb.style.animation='gp 2s ease-in-out infinite'}
 }
 
 function renderPlayers(){
@@ -590,8 +540,8 @@ function renderStatus(){
     b.textContent=localState.currentPlayer===myPlayer?'Your Turn':`${localState.players[localState.currentPlayer]}'s Turn`;
     rb.classList.remove('show');
   } else {
-    if(localState.winner){b.className='sbadge tw';b.textContent=`${localState.players[localState.winner]} Wins! 🎉`;}
-    else{b.className='sbadge td';b.textContent='Draw — No Winner';}
+    if(localState.winner){b.className='sbadge tw';b.textContent=`${localState.players[localState.winner]} Wins! 🎉`}
+    else{b.className='sbadge td';b.textContent='Draw — No Winner'}
     rb.classList.add('show');
     const mr=localState.rematch&&localState.rematch[myPlayer];
     rb.textContent=mr?'⏳ Waiting...':'↺ Rematch';rb.disabled=!!mr;
@@ -608,16 +558,15 @@ function renderLog(){
   });
   log.scrollTop=log.scrollHeight;
 }
-function renderScore(){document.getElementById('w1').textContent=wins[1];document.getElementById('w2').textContent=wins[2];}
+function renderScore(){document.getElementById('w1').textContent=wins[1];document.getElementById('w2').textContent=wins[2]}
 
-// ── drop ──
-function getRow(board,col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===0)return r;return -1;}
+function getRow(board,col){for(let r=ROWS-1;r>=0;r--)if(board[r][col]===0)return r;return -1}
 function checkWin(board,row,col){
   const p=board[row][col],dirs=[[0,1],[1,0],[1,1],[1,-1]];
   for(const[dr,dc]of dirs){
     const cells=[[row,col]];
-    for(let d=1;d<4;d++){const r=row+dr*d,c=col+dc*d;if(r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==p)break;cells.push([r,c]);}
-    for(let d=1;d<4;d++){const r=row-dr*d,c=col-dc*d;if(r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==p)break;cells.push([r,c]);}
+    for(let d=1;d<4;d++){const r=row+dr*d,c=col+dc*d;if(r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==p)break;cells.push([r,c])}
+    for(let d=1;d<4;d++){const r=row-dr*d,c=col-dc*d;if(r<0||r>=ROWS||c<0||c>=COLS||board[r][c]!==p)break;cells.push([r,c])}
     if(cells.length>=4)return cells.slice(0,4);
   }
   return null;
@@ -629,9 +578,9 @@ async function drop(col){
   const s=JSON.parse(JSON.stringify(localState));
   s.board[row][col]=myPlayer;s.moves.push({player:myPlayer,col,row});
   const win=checkWin(s.board,row,col);
-  if(win){s.gameOver=true;s.winner=myPlayer;s.winCells=win;wins[myPlayer]++;}
-  else if(s.moves.length===ROWS*COLS){s.gameOver=true;s.winner=null;}
-  else{s.currentPlayer=myPlayer===1?2:1;}
+  if(win){s.gameOver=true;s.winner=myPlayer;s.winCells=win;wins[myPlayer]++}
+  else if(s.moves.length===ROWS*COLS){s.gameOver=true;s.winner=null}
+  else{s.currentPlayer=myPlayer===1?2:1}
   s.version=(s.version||0)+1;s.rematch={1:false,2:false};
   localState=s;renderAll();await storeState(roomCode,s);
 }
@@ -646,18 +595,12 @@ async function doRematch(){
   const f=mkState();f.players=localState.players;f.version=(localState.version||0)+1;
   localState=f;renderAll();await storeState(roomCode,f);
 }
-
 function leaveGame(){
   clearInterval(pollTimer);deleteState(roomCode);
   roomCode='';localState=null;myRole=null;myPlayer=null;wins={1:0,2:0};
   show('lobbyScreen');
 }
-
-function show(id){
-  ['lobbyScreen','waitingScreen','gameScreen'].forEach(s=>{
-    document.getElementById(s).style.display=s===id?'flex':'none';
-  });
-}
+function show(id){['lobbyScreen','waitingScreen','gameScreen'].forEach(s=>{document.getElementById(s).style.display=s===id?'flex':'none'})}
 
 show('lobbyScreen');
 </script>
