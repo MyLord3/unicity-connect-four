@@ -327,79 +327,102 @@ const SPHERE_ORIGIN = 'https://sphere.unicity.network';
 
 let wallet = { connected: false, address: null, balance: null };
 let spherePopup = null;
+let spherePollTimer = null;
 
 function connectWallet() {
-  // Open Sphere connect popup — exactly how Boxy Run does it
   const origin = encodeURIComponent(window.location.origin || window.location.href);
   const popupUrl = `${SPHERE_ORIGIN}/connect?origin=${origin}`;
 
   spherePopup = window.open(
     popupUrl,
     'SphereWallet',
-    'width=400,height=600,top=100,left=100,resizable=no,scrollbars=no'
+    'width=420,height=650,top=80,left=80,resizable=no,scrollbars=no'
   );
 
-  // If popup was blocked, show instruction
   if (!spherePopup || spherePopup.closed) {
     alert('Please allow popups for this site, then click "Connect Sphere Wallet" again.\n\nIn Chrome: click the popup blocked icon in the address bar → Allow popups from this site.');
+    return;
+  }
+
+  // Poll window.sphere in case extension injects it after popup opens
+  clearInterval(spherePollTimer);
+  spherePollTimer = setInterval(checkInjectedSphere, 500);
+  setTimeout(() => clearInterval(spherePollTimer), 30000); // stop after 30s
+}
+
+function checkInjectedSphere() {
+  if (!window.sphere) return;
+  clearInterval(spherePollTimer);
+
+  // Try all known Sphere API methods
+  const sphere = window.sphere;
+
+  if (typeof sphere.getWalletInfo === 'function') {
+    sphere.getWalletInfo().then(handleWalletData).catch(()=>{});
+  } else if (typeof sphere.getAccount === 'function') {
+    sphere.getAccount().then(handleWalletData).catch(()=>{});
+  } else if (typeof sphere.connect === 'function') {
+    sphere.connect().then(handleWalletData).catch(()=>{});
+  } else if (typeof sphere.request === 'function') {
+    // MetaMask-style
+    sphere.request({ method: 'eth_requestAccounts' }).then(handleWalletData).catch(()=>{});
+  } else {
+    // sphere object exists but unknown shape — try reading properties directly
+    handleWalletData(sphere);
   }
 }
 
+function handleWalletData(data) {
+  if (!data) return;
+  wallet.connected = true;
+  // Handle arrays (eth_requestAccounts returns array)
+  if (Array.isArray(data)) {
+    wallet.address = data[0] || null;
+  } else {
+    wallet.address = data.address || data.wallet || data.account || data.nametag || data.id || null;
+    wallet.balance = data.balance !== undefined ? data.balance : data.amount !== undefined ? data.amount : null;
+  }
+  if (spherePopup && !spherePopup.closed) spherePopup.close();
+  updateWalletUI();
+}
+
 function disconnectWallet() {
-  // Notify Sphere extension if it's listening
+  clearInterval(spherePollTimer);
   if (window.sphere && typeof window.sphere.disconnect === 'function') {
-    window.sphere.disconnect();
+    try { window.sphere.disconnect(); } catch(e) {}
   }
   wallet = { connected: false, address: null, balance: null };
   updateWalletUI();
 }
 
-// ── Listen for messages from the Sphere popup / extension ──
+// Listen for postMessage from Sphere popup — NO origin filter so we catch everything
 window.addEventListener('message', function(evt) {
-  // Only trust messages from the Sphere origin
-  if (evt.origin !== SPHERE_ORIGIN && !evt.origin.includes('sphere.unicity')) return;
+  // Accept from sphere.unicity.network OR chrome-extension:// (extension direct)
+  const trusted = evt.origin.includes('sphere.unicity') || evt.origin.startsWith('chrome-extension');
+  if (!trusted) return;
 
   let msg;
   try { msg = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data; } catch(e) { return; }
-  if (!msg || !msg.type) return;
+  if (!msg) return;
 
-  switch (msg.type) {
-    case 'WALLET_CONNECTED':
-    case 'WALLET_INFO':
-    case 'CONNECT_SUCCESS': {
-      wallet.connected = true;
-      wallet.address = msg.address || msg.wallet || msg.account || null;
-      wallet.balance = msg.balance !== undefined ? msg.balance : null;
-      if (spherePopup && !spherePopup.closed) spherePopup.close();
-      updateWalletUI();
-      break;
-    }
-    case 'WALLET_DISCONNECTED': {
-      wallet = { connected: false, address: null, balance: null };
-      updateWalletUI();
-      break;
-    }
-    case 'BALANCE_UPDATE': {
-      wallet.balance = msg.balance !== undefined ? msg.balance : msg.amount;
-      updateWalletUI();
-      break;
-    }
+  // Sphere may send the wallet object directly (no .type wrapper)
+  const type = msg.type || '';
+
+  if (type === 'WALLET_CONNECTED' || type === 'WALLET_INFO' || type === 'CONNECT_SUCCESS' ||
+      type === 'CONNECTION_SUCCESS' || type === 'CONNECTED' || msg.address || msg.wallet || msg.account) {
+    handleWalletData(msg);
+  } else if (type === 'WALLET_DISCONNECTED' || type === 'DISCONNECTED') {
+    wallet = { connected: false, address: null, balance: null };
+    updateWalletUI();
+  } else if (type === 'BALANCE_UPDATE' || type === 'BALANCE') {
+    wallet.balance = msg.balance !== undefined ? msg.balance : msg.amount;
+    updateWalletUI();
   }
 });
 
-// ── Also support window.sphere injected by the extension directly ──
+// On load: check if extension already injected window.sphere
 window.addEventListener('load', () => {
-  if (window.sphere) {
-    // Extension injected wallet object directly
-    window.sphere.getAccount && window.sphere.getAccount().then(acct => {
-      if (acct) {
-        wallet.connected = true;
-        wallet.address = acct.address || acct;
-        wallet.balance = acct.balance || null;
-        updateWalletUI();
-      }
-    }).catch(() => {});
-  }
+  if (window.sphere) checkInjectedSphere();
 });
 
 function fmtAddr(a) {
